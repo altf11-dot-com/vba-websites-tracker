@@ -24,7 +24,6 @@ Private Sub CommandButton1_Click()
     Me.Hide 'the Me object is the current form, hide from view
     'NOTE the data in the fields persists after the form is hidden
     
-    
     'capture the data to variables
     'NOTE whether or not to create variables is a design decision
     Dim url As String, txt As String, un As String, pw As String, cmt As String
@@ -33,20 +32,29 @@ Private Sub CommandButton1_Click()
     un = TextBox3.Value
     pw = TextBox4.Value
     cmt = TextBox5.Value
-    
+
+    Dim requiredFieldIsMissing As Long 'since 0, 1 or 2, could use byte or integer
     'these one liner IF statements test for empty values
     'in effect, turns both url and txt into required items
-    'if either is empty the program exits
-    If url = vbNullString Then Exit Sub
-    If txt = vbNullString Then Exit Sub
-    
-    'two more subroutine calls finish the job
-    If GetNewDataRow(txt) Then PutNewData url, txt, un, pw, cmt
+    'if either is empty the program skips adding the row
+    If txt = vbNullString Then requiredFieldIsMissing = 2
+    If url = vbNullString Then requiredFieldIsMissing = 1
+    If requiredFieldIsMissing > 0 Then
+        MsgBox "Required field missing:" & vbLf & IIf(requiredFieldIsMissing = 1, "URL", "Text Display"), vbOKOnly, "Returning to Main..."
+        GoTo Exit_Sub_
+    Else
+        'two more subroutine calls finish the job
+        'add a row, and if that's succesful put data in it
+        If GetNewDataRow(txt) Then
+            PutNewData url, txt, un, pw, cmt
+        End If
+    End If
+   
+Exit_Sub_:
     
     'clears the form and removes it from memory
     'if we didn't do this, we would have to write code
     'to clear the form before using it again
-    
     Unload Me
     
 End Sub
@@ -189,4 +197,8 @@ Private Sub PutNewData(url As String, txt As String, un As String, pw As String,
     End With
     Columns.EntireColumn.AutoFit
     
+End Sub
+
+Private Sub UserForm_Click()
+
 End Sub
